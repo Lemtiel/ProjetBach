@@ -448,3 +448,30 @@ def ui():
 
 if __name__ == "__main__":
     ui()
+
+
+
+
+ValueError: Expected metadata value to be a str, int, float, bool, or None, got [(3, 'Bloc opératoire'), (2, 'Laboratoire'), (3, 'Imagerie'), (3, 'Paramètre'), (2, 'Trésorerie'), (3, 'Ventes et encaissements'), (3, 'All Sales'), (3, 'Rapports')] which is a list in add.
+Traceback:
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\environments\ProjetBach\assistant.py", line 294, in <module>
+    ui()
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\environments\ProjetBach\assistant.py", line 263, in ui
+    n_chunks, n_docs = index_markdown_files(st.session_state["_staged_files"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\environments\ProjetBach\assistant.py", line 151, in index_markdown_files
+    col.add(
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\Lib\site-packages\chromadb\api\models\Collection.py", line 80, in add
+    add_request = self._validate_and_prepare_add_request(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\Lib\site-packages\chromadb\api\models\CollectionCommon.py", line 95, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\Lib\site-packages\chromadb\api\models\CollectionCommon.py", line 219, in _validate_and_prepare_add_request
+    validate_insert_record_set(record_set=add_records)
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\Lib\site-packages\chromadb\api\types.py", line 314, in validate_insert_record_set
+    validate_metadatas(record_set["metadatas"])
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\Lib\site-packages\chromadb\api\types.py", line 791, in validate_metadatas
+    validate_metadata(metadata)
+File "C:\Users\Boniface Tatou\Documents\MyVirEnv\specialMemo\Lib\site-packages\chromadb\api\types.py", line 757, in validate_metadata
+    raise ValueError(
