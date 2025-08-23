@@ -1,0 +1,450 @@
+#Charger l'API Groq
+load_dotenv()
+api_key = os.getenv("GROQ_API_KEY")
+if not api_key:
+    st.error("Clé API non trouvée. Vérifiez qu'il existe une clé pour Groq dans votre fichier '.env'.")
+    st.stop()
+elif len(api_key)<20:
+    st.error("Clé API invalide. Vérifiez votre clé dans le fichier '.env'.")
+    st.stop()
+
+#Initialisation du client Groq
+try:
+    groq_client = Groq(api_key=api_key) #Utilisation explicite de groq_client
+except Exception as e:
+    st.error(f"Erreur lors de l'initialisation du client Groq : {e}")
+    st.stop()
+
+#Accuiel de la page
+st.title("Module d'accompagnement")
+#st_lottie(groq_client, speed=1, width=300, height=300, loop= True, key="chatbot")
+st.markdown("""😀 posez moi votre question et je vous guiderai.""")
+
+#Gestion de l'historique de communication
+
+### sidebar story
+with st.sidebar:
+    st.markdown("### Historique de la conversation")
+    if "chatgen_history" in st.session_state and st.session_state.chatgen_history:
+        for i, entry in enumerate(st.session_state.chatgen_history):
+            role = "Assistant" if entry["role"] == "assistant" else "utilisateur"
+            st.markdown(f"**{role} ({i+1}):** {entry['content']}")
+    else:
+        st.markdown("Aucun historique de recherche")
+
+### chat Story
+if "chatgen_history" not in st.session_state:
+    role = entry["role"]
+    avatar = "🧠" if role == "assistant" else "👤"
+    with st.chat_message(role, avatar=avatar):
+        st.markdown(entry["content"])
+
+#Entrée de l'utilisateur
+prompt = st.chat_input("Que souhaitez-vous faire ?")
+if prompt and prompt.strip(): # Vérification que le prompt n'est pas vide
+    st.chat_message("user", avatar="👤").markdown(prompt)
+    st.session_state.chatgen_history.append({"role": "user", "content": prompt})
+
+# Utilisation directe de Groq
+response = groq_client.chat.completions.create(
+    messages=[
+        {"role": "system", "content": "Vous êtes un assistant virtuel qui aide les utilisateurs en leur donnant la procédure à suivre pour réaliser des actions précise dans l'ERP Uptiimum."},
+        {"role": "user", "content": prompt}
+    ],
+    model="microsoft/Phi-3.5-mini-instruct",
+    max_tokens=512,
+    temperature=0.7
+)
+reply = response.choices[0].message.content
+if reply:
+    st.chat_message("assistant", avatar="🧠").markdown(reply)
+    st.session_state.chatgen_history.append({"role": "assistant", "content": reply})
+
+    #Génération et leccture de l'Audio avec gTTS
+    audio_content = gtts.gTTS(reply, lang='fr')
+    audio_content.save("reply.mp3")
+    st.audio("reply.mp3", format="audio/wav")
+
+
+
+
+
+
+
+
+
+
+
+
+## Solution assistant docu streamlit
+
+import streamlit as st
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import MarkdownTextSplitter
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.agents import initialize_agent, Tool
+
+# --- Charger le fichier Markdown ---
+loader = TextLoader("votre_fichier.md")
+documents = loader.load()
+splitter = MarkdownTextSplitter()
+chunks = splitter.split_documents(documents)
+
+# --- Créer les embeddings et la base vectorielle ---
+embeddings = OpenAIEmbeddings()
+db = Chroma.from_documents(chunks, embeddings)
+
+# --- Configurer l'agent RAG ---
+tools = [
+    Tool(
+        name="Récupérateur",
+        func=db.similarity_search,
+        description="Cherche les informations pertinentes dans le document."
+    )
+]
+
+# llm doit pointer vers votre instance LLaMA 3 via Groq ou Ollama
+# Exemple fictif : llm = VotreClasseLLaMA3()
+
+agent = initialize_agent(
+    tools, llm=llm, agent_type="zero-shot-react-description", verbose=False
+)
+
+# --- Interface Streamlit ---
+st.title("Assistant RAG - LLaMA 3 + Groq")
+
+question = st.text_input("Posez votre question :")
+
+if question:
+    response = agent.run(question)
+    st.write(response)
+
+
+
+
+
+
+## solution docu assistant llama3
+
+"""
+App RAG local (Streamlit) — 100% hors-ligne — Ollama + ChromaDB
+================================================================
+
+Fonctionnalités :
+- Indexe un ou plusieurs fichiers .md (Markdown)
+- Stocke les embeddings dans une base vectorielle locale Chroma (persist_dir)
+- Récupération (similarity search) + génération via LLaMA 3 (Ollama)
+- Interface Streamlit minimaliste
+
+Prérequis système :
+- Python 3.11+
+- Ollama installé et accessible dans le PATH
+  - `ollama pull llama3` (ou `llama3:8b`)
+  - `ollama pull nomic-embed-text` (modèle d'embeddings rapide et léger)
+
+Installation des dépendances (dans un venv Python 3.11) :
+-----------------------------------------------------------------
+# Crée/active ton venv (exemples)
+# Windows PowerShell
+#   python3.11 -m venv .venv
+#   .\.venv\Scripts\Activate.ps1
+# Linux/macOS
+#   python3.11 -m venv .venv
+#   source .venv/bin/activate
+
+# Installer les libs
+#   pip install streamlit chromadb ollama markdown-it-py pydantic typing-extensions
+
+Lancement :
+----------
+#   streamlit run app.py
+
+Notes :
+- Le dossier d'index (persist_dir) est « .rag_index » à la racine du projet.
+- Tu peux réindexer à tout moment (bouton) après avoir choisi tes fichiers .md.
+- L'app ne dépend pas de LangChain : on appelle Ollama directement en Python.
+"""
+
+import os
+import re
+import uuid
+import json
+from dataclasses import dataclass
+from typing import List, Dict, Tuple
+
+import streamlit as st
+import chromadb
+from chromadb.config import Settings
+from markdown_it import MarkdownIt
+import ollama
+
+# -----------------------------
+# Config de base
+# -----------------------------
+PERSIST_DIR = ".rag_index"
+COLLECTION_NAME = "md_docs"
+EMBED_MODEL = "nomic-embed-text"  # `ollama pull nomic-embed-text`
+CHAT_MODEL = "llama3"             # `ollama pull llama3` (ou llama3:8b)
+TOP_K = 5
+CHUNK_SIZE = 1200  # caractères
+CHUNK_OVERLAP = 200
+
+# -----------------------------
+# Outils Markdown & Chunking
+# -----------------------------
+md = MarkdownIt()
+
+@dataclass
+class DocChunk:
+    id: str
+    content: str
+    source: str
+    meta: Dict
+
+
+def read_markdown_text(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+def simple_md_chunker(text: str, source: str) -> List[DocChunk]:
+    """Découpe le Markdown par blocs de taille ~CHUNK_SIZE avec chevauchement.
+    Conserve des hints (titres) dans les métadonnées.
+    """
+    # Extraire les titres H1/H2/H3 pour les inclure en contexte
+    headings = []
+    for line in text.splitlines():
+        m = re.match(r"^(#{1,3})\s+(.*)", line)
+        if m:
+            level = len(m.group(1))
+            title = m.group(2).strip()
+            headings.append((level, title))
+
+    chunks: List[DocChunk] = []
+    start = 0
+    n = len(text)
+    while start < n:
+        end = min(n, start + CHUNK_SIZE)
+        content = text[start:end]
+        meta = {
+            "headings": headings[:8],  # petit échantillon pour signaler la structure
+            "start": start,
+            "end": end,
+        }
+        chunks.append(
+            DocChunk(
+                id=str(uuid.uuid4()),
+                content=content,
+                source=source,
+                meta=meta,
+            )
+        )
+        if end == n:
+            break
+        start = max(end - CHUNK_OVERLAP, 0)
+    return chunks
+
+
+# -----------------------------
+# Embeddings via Ollama
+# -----------------------------
+
+def embed_texts(texts: List[str]) -> List[List[float]]:
+    """Retourne les embeddings via l'API Python ollama (local)."""
+    # ollama.embeddings renvoie un dict { 'embedding': [...] }
+    vectors = []
+    for t in texts:
+        resp = ollama.embeddings(model=EMBED_MODEL, prompt=t)
+        vectors.append(resp["embedding"])  # type: ignore[index]
+    return vectors
+
+
+# -----------------------------
+# ChromaDB : création/chargement de collection
+# -----------------------------
+
+def get_or_create_collection(persist_dir: str = PERSIST_DIR, name: str = COLLECTION_NAME):
+    client = chromadb.Client(Settings(persist_directory=persist_dir, anonymized_telemetry=False))
+    try:
+        col = client.get_collection(name)
+    except Exception:
+        col = client.create_collection(name)
+    return client, col
+
+
+def reset_collection():
+    if os.path.isdir(PERSIST_DIR):
+        # Efface le dossier d'index
+        for root, dirs, files in os.walk(PERSIST_DIR, topdown=False):
+            for f in files:
+                os.remove(os.path.join(root, f))
+            for d in dirs:
+                os.rmdir(os.path.join(root, d))
+        os.rmdir(PERSIST_DIR)
+    os.makedirs(PERSIST_DIR, exist_ok=True)
+
+
+# -----------------------------
+# Indexation
+# -----------------------------
+
+def index_markdown_files(paths: List[str]) -> Tuple[int, int]:
+    """Lit, découpe, embed et insère dans Chroma. Retourne (#chunks, #docs)."""
+    client, col = get_or_create_collection()
+
+    total_chunks = 0
+    for path in paths:
+        text = read_markdown_text(path)
+        chunks = simple_md_chunker(text, source=os.path.basename(path))
+
+        # Embeddings
+        embeddings = embed_texts([c.content for c in chunks])
+
+        # Ajout à Chroma
+        col.add(
+            ids=[c.id for c in chunks],
+            documents=[c.content for c in chunks],
+            metadatas=[{"source": c.source, **c.meta} for c in chunks],
+            embeddings=embeddings,
+        )
+        total_chunks += len(chunks)
+
+    return total_chunks, len(paths)
+
+
+# -----------------------------
+# Recherche + Génération
+# -----------------------------
+
+def retrieve(question: str, k: int = TOP_K) -> List[Dict]:
+    _, col = get_or_create_collection()
+    q_emb = embed_texts([question])[0]
+    res = col.query(query_embeddings=[q_emb], n_results=k, include=["documents", "metadatas", "distances", "ids"])  # type: ignore[arg-type]
+    docs = []
+    if res and res.get("documents"):
+        for i in range(len(res["documents"][0])):
+            docs.append({
+                "id": res["ids"][0][i],
+                "text": res["documents"][0][i],
+                "meta": res["metadatas"][0][i],
+                "distance": res["distances"][0][i],
+            })
+    return docs
+
+
+def build_prompt(question: str, contexts: List[Dict]) -> List[Dict[str, str]]:
+    context_blocks = []
+    for i, c in enumerate(contexts, start=1):
+        src = c["meta"].get("source", "")
+        context_blocks.append(f"[Doc {i} | {src}]\n{c['text']}")
+    context_text = "\n\n".join(context_blocks)
+
+    system = (
+        "Tu es un assistant RAG concis et factuel. Réponds UNIQUEMENT avec les informations trouvées dans le contexte. "
+        "Si la réponse n'est pas dans le contexte, dis que tu ne sais pas. Cite les [Doc i] pertinents."
+    )
+    user = (
+        f"Question:\n{question}\n\n"
+        f"Contexte (extraits de documents):\n{context_text}\n\n"
+        "Réponse :"
+    )
+    return [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+
+
+def generate_answer(question: str) -> Tuple[str, List[Dict]]:
+    ctxs = retrieve(question, k=TOP_K)
+    messages = build_prompt(question, ctxs)
+
+    # Appel Ollama (chat)
+    resp = ollama.chat(model=CHAT_MODEL, messages=messages, options={
+        "temperature": 0.2,
+        "num_ctx": 8192,
+    })
+    answer = resp.get("message", {}).get("content", "")
+    return answer, ctxs
+
+
+# -----------------------------
+# UI Streamlit
+# -----------------------------
+
+def ui():
+    st.set_page_config(page_title="RAG local (Ollama)", page_icon="🦙", layout="wide")
+    st.title("🦙🔎 RAG local — Ollama + ChromaDB")
+
+    with st.sidebar:
+        st.header("Paramètres")
+        st.markdown("**Modèles** (assure-toi de les avoir pull):")
+        st.code("""ollama pull llama3\nollama pull nomic-embed-text""", language="bash")
+        global CHAT_MODEL, EMBED_MODEL, TOP_K
+        CHAT_MODEL = st.text_input("Modèle chat (Ollama)", CHAT_MODEL)
+        EMBED_MODEL = st.text_input("Modèle embeddings (Ollama)", EMBED_MODEL)
+        TOP_K = st.slider("Passages à récupérer (k)", min_value=1, max_value=10, value=TOP_K)
+
+        st.divider()
+        st.subheader("Index (persistant)")
+        st.write(f"Dossier d'index : `{PERSIST_DIR}` | Collection : `{COLLECTION_NAME}`")
+        if st.button("🗑️ Réinitialiser l'index"):
+            reset_collection()
+            st.success("Index réinitialisé.")
+
+    st.markdown("### 1) Charger tes fichiers Markdown (.md)")
+    uploaded_files = st.file_uploader("Sélectionne un ou plusieurs .md", type=["md"], accept_multiple_files=True)
+
+    if "_staged_files" not in st.session_state:
+        st.session_state["_staged_files"] = []
+
+    staged_paths: List[str] = []
+    if uploaded_files:
+        os.makedirs(".staged_md", exist_ok=True)
+        for f in uploaded_files:
+            p = os.path.join(".staged_md", f.name)
+            with open(p, "wb") as out:
+                out.write(f.getvalue())
+            staged_paths.append(p)
+        st.session_state["_staged_files"] = staged_paths
+        st.success(f"{len(staged_paths)} fichier(s) prêt(s) pour indexation.")
+
+    colA, colB = st.columns([1,1])
+    with colA:
+        if st.button("⚙️ Indexer / Réindexer les fichiers chargés"):
+            if not st.session_state.get("_staged_files"):
+                st.warning("Aucun fichier .md chargé.")
+            else:
+                n_chunks, n_docs = index_markdown_files(st.session_state["_staged_files"])
+                st.success(f"Indexation OK — {n_docs} doc(s), {n_chunks} chunk(s) ajoutés.")
+
+    with colB:
+        st.info("Astuce : tu peux recharger d'autres .md puis réindexer pour enrichir la base.")
+
+    st.markdown("### 2) Poser une question")
+    question = st.text_input("Ta question (basée sur les .md indexés)", placeholder="Ex: Quels sont les KPIs décrits dans le chapitre 2 ?")
+
+    if st.button("🔍 Interroger") or (question and st.session_state.get("auto_run")):
+        if not question:
+            st.warning("Pose une question.")
+        else:
+            with st.spinner("Génération de la réponse..."):
+                try:
+                    answer, ctxs = generate_answer(question)
+                except Exception as e:
+                    st.error(f"Erreur pendant la génération: {e}")
+                    return
+            st.subheader("Réponse")
+            st.write(answer)
+            if ctxs:
+                st.markdown("#### Passages utilisés")
+                for i, c in enumerate(ctxs, start=1):
+                    with st.expander(f"[Doc {i}] {c['meta'].get('source','')} — distance={c.get('distance'):.4f}"):
+                        st.code(c["text"][:2000])
+
+    st.divider()
+    st.caption("Local RAG • Ollama + Chroma • Streamlit • © 2025")
+
+
+if __name__ == "__main__":
+    ui()
