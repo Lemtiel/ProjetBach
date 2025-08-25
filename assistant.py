@@ -264,7 +264,7 @@ def ui():
                 st.success(f"Indexation OK — {n_docs} doc(s), {n_chunks} chunk(s) ajoutés.")
 
     with colB:
-        st.info("Astuce : tu peux recharger d'autres .md puis réindexer pour enrichir la base.")
+        st.info("Vous pouvez indexer plusieurs fichiers .md à la fois.")
 
     st.markdown("### 2) Poser une question")
     question = st.text_input("Ta question (basée sur les .md indexés)", placeholder="Ex: Quels sont les KPIs décrits dans le chapitre 2 ?")
