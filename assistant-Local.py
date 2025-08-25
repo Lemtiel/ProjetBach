@@ -237,7 +237,7 @@ def ui():
             reset_collection()
             st.success("Index réinitialisé.")
 
-    st.markdown("### 1) Charger tes fichiers Markdown (.md)")
+    st.markdown("### 1) Chargez le fichier Markdown")
     uploaded_files = st.file_uploader("Sélectionne un ou plusieurs .md", type=["md"], accept_multiple_files=True)
 
     if "_staged_files" not in st.session_state:
@@ -267,7 +267,7 @@ def ui():
         st.info("Vous pouvez indexer plusieurs fichiers .md à la fois.")
 
     st.markdown("### 2) Poser une question")
-    question = st.text_input("Ta question (basée sur les .md indexés)", placeholder="Ex: Quels sont les KPIs décrits dans le chapitre 2 ?")
+    question = st.text_input("Ta question (basée sur les .md indexés)", placeholder="Ex: Comment se connecter ?")
 
     if st.button("🔍 Interroger") or (question and st.session_state.get("auto_run")):
         if not question:

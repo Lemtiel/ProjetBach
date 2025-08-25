@@ -6,7 +6,7 @@ Le progiciel **uptiimum ERP** offre une solution efficace de gestion intégrée 
 
 
 Se connecter:
-Après l'installation de l'ERP Uptiimum dans votre structure par l'administrateur et les équipes DevOps, votre première interaction avec le système sera avec l'interface de connexion à l'ERP telle que présentée par l'image au bas de cette section. Il vous est demandé de renseigné votre adresse email avec laquelle votre compte sur l'application a été créé ainsi que le mot de passe associé. **Vous seul(e) devez le connaître** car il est confidentiel. Une fois terminé, cliquez sur le bouton en-dessous, "**Se Connecter**" et vous vous retrouvez sur l'espace de travail qui vous est destiné.
+Après l'installation de l'ERP Uptiimum dans votre structure par l'administrateur et les équipes DevOps, votre première interaction avec le système sera avec l'interface de connexion à l'ERP. Il vous est demandé de renseigné votre adresse email avec laquelle votre compte sur l'application a été créé ainsi que le mot de passe associé. **Vous seul(e) devez le connaître** car il est confidentiel. Une fois terminé, cliquez sur le bouton en-dessous, "**Se Connecter**" et vous vous retrouvez sur l'espace de travail qui vous est destiné.
 Si jamais vous avez oublié votre mot de passe, faites un click gauche sur le texte en bleu "Mot de Passe Oublié" et suivez scrupuleusement les indications qui vous sont demandées, étape par étape. Ou alors, contactez votre administrateur système.
 
 
@@ -42,47 +42,47 @@ L'affectation est le procédé par lequel on redirige un patient après analyse 
 - alider l'affectation en cliquant sur le bouton "**Enregistrer**"
 
 
-### Bloc opératoire
+Bloc opératoire:
 Cette section rassemble de nombreuses autres sous sections parmi lesquels nous pouvons citer :
 
-#### Anesthésie
+Anesthésie:
 Ici vous enregistrer les types d'anesthésies effectuées, et non les patients qui l'ont été
 Vous pouvez renseignez un nouveau à l'aide du bouton prévu à cet effet dans le coin haut - droit
 
-#### Type d'opération
+Type d'opération:
 De la même façon que pour anesthésie et types d'intervention, vous enregistrer les types d'opérations effectuées, et non les patients qui l'ont été. Vous pouvez renseignez un nouveau à l'aide du bouton prévu à cet effet dans le coin haut - droit
 
-#### Type d'interventions
+Type d'interventions:
 De la même façon que pour anesthésie et types d'opération, vous enregistrer les types d'interventions chirurgicales effectuées, et non les patients qui l'ont été. Vous pouvez renseignez un nouveau à l'aide du bouton prévu à cet effet dans le coin haut - droit
 
-#### Liste des opérations    
+Liste des opérations:
 Cette Page est à titre infofrmatif. Elle vous présente la liste des opérations qui ont été effectuées au sein de l'hôpital de la plus récente vers la moin récente.
 
-#### Tickets opératoires
+Tickets opératoires:
 Cette Page est à titre infofrmatif. Elle vous présente la liste des tickets distribués pour les opérations à effectuer sur chaque client. Ce ticket renseigne la salle, le numéro du client, le type d'intervention et d'autres infos utiles pour la mise en oeuvre de l'opération.
 
-## Laboratoire
+Laboratoire:
 Le module Laboratoire de l’ERP Uptiimum est conçu pour optimiser la gestion des examens médicaux au sein des établissements hospitaliers. Il permet de centraliser les demandes d’analyses, de suivre leur traitement en temps réel et d’assurer la transmission rapide et sécurisée des résultats aux médecins prescripteurs. Contrairement à un centre de recherche, ce module se concentre avant tout sur l’efficacité et la fiabilité des examens de routine et spécialisés nécessaires au diagnostic et au suivi des patients. Grâce à son intégration avec les autres modules de l’ERP (gestion patient, facturation, pharmacie), il favorise une meilleure coordination des soins et une traçabilité complète des analyses réalisées.
 Cette section est à grande partie informative, elle et toutes ses sous-sections. elle vous présente donc les listes des **examens, des échantillons, des analyses et tests d'analyses, les rapports d'analyse, les examens terminés et enfin les bulletins prescrits.** Pour certaines parmi ces sous-sections, vous avez la possibilité de gérer les options directement sur la page.
 
 
-### Imagerie
+Imagerie:
 Le service d'imagerie vous permet de réaliser des tests, des radiographie et d'autres options sur les paramètres prélevés d'un patient.
 
-### Paramètre
+Paramètre:
 C'est le module de gestion des paramètres de la setion "**Laboratoire**"
 
-## Trésorerie
+Trésorerie:
 Le module Trésorerie de l’ERP Uptiimum permet de gérer de manière centralisée et efficace l’ensemble des flux financiers d’une organisation, qu’il s’agisse d’un établissement hospitalier ou d’une structure économique comme une boutique ou une superette. Il offre un suivi précis des encaissements et décaissements, la gestion des comptes bancaires, des caisses et des paiements fournisseurs, ainsi que la planification des flux de trésorerie. Grâce à ses outils de reporting et d’alertes, ce module facilite la prise de décision, optimise la gestion des liquidités et assure une visibilité complète sur la santé financière de l’entreprise ou de l’établissement
 Etant donné que le module lié à la trésorerie n'est pas uniquement dépendant de ceux destinés à la gestion hospitalière, son développement se veut légèrement particulier.
 
-### Ventes et encaissements
+Ventes et encaissements:
 Ils concernent les clients, les produits vendus et lun suivi sur les montants. En appuyant sur le bouton *"Add"*, un formulaire à remplir scrupuleusement s'ouvre. Une fois remplie, appuyez sur enregistrer ppour sauvegarder la commande.
 
-### All Sales
+All Sales:
 Liste de toutes les ventes effectuées et enregistrées dans le système.
 
-### Rapports
+Rapports:
 Toute la section concernant les rapports est à titre informative. On y retrouve les journaux d'achats, de ventes et tout ce qui fait référence aux flux financiers, entrées et sorties.
 
 
@@ -104,7 +104,7 @@ Import product:
 Cette sous-section vous permet d'importer un fichier qui traite des produits. Le suivi des instructions indiqués dans cette page est primordial. Tous les champs avec la précision en paranthèse ***(required)*** est obligatoire pour que le fichier soit importer dans l'application.
 
 
-### Purchase
+Purchase:
 Cette section présente les éléments dont vous avez besoin pour suivre les flux sur les ventes en pharmacie.
 
 
@@ -116,16 +116,16 @@ Services:
 Cette section vous permet de renseigner les services existant dans la structure de santé, notamment **Radiologie, Pédiatrie, Chirurgie, Ophtalmologie, Cardiologie, etc.** Avec le bouton "*Add*" dans le coin Haut - Droit, vous allez renseigner le nom du service que vous souhaitez ajouter à la section et un code y afférent. Cette section n'est réservée qu'à l'administrateur
 
 
-### Corps Métiers
+Corps Métiers:
 Ce service renseigne les types de personnels enregistrés dans votre système. Vous pouvez en ajouter ou modifier ceux présents selon vos besoins et vos contraintes.
 
-### Statut
+Statut:
 On renseigne ici les types de personnels présents dans le système ; soit des stagiaires, soit des vacataires, etc. Pour ce faire, cliquer sur le bouton prévu à cet effet.
 
-### Affectation
+Affectation
 ici, l'administrateur peut affecter suivant les services existant, des personnels spécifiques selon les besoins et les contraintes.
 
-### Liste Prescripteurs
+Liste Prescripteurs;
 C'est la liste de tous les membres du personnel ayant effectuer des prescriptions à des patients, les montants reçus par ceux-ci, et les informations nécessaire pour recontacter le prescripteur.
 
 
